@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        * { margin: 0; padding: 0; }
+        body { background-color: lightcyan; text-align: center; font-family: Arial, sans-serif; }
+        .container { height: 70vh; display: flex; justify-content: center; align-items: center; }
+        .game { height: 60vmin; width: 60vmin; display: flex; flex-wrap: wrap; gap: 1.5vmin; justify-content: center; }
+        .box { height: 18vmin; width: 18vmin; border-radius: 1rem; border: none; box-shadow: 0 0 1rem rgba(0,0,0,0.3); font-size: 8vmin; color: red; background-color: yellow; cursor: pointer; }
+        .box:hover { background-color: chocolate; }
+        .box:disabled { cursor: not-allowed; }
+        #reset, #new-btn { padding: 1rem; font-size: 1.25rem; background: #191913; color: white; border-radius: 1rem; border: none; margin: 0.5rem; cursor: pointer; }
+        #msg { font-size: 8vmin; margin-bottom: 1rem; }
+        .msg-container { height: 30vmin; }
+        .hide { display: none; }
+        h1 { font-size: 3rem; margin: 1rem 0; }
+    </style>
+</head>
+<body>
+    <div class="msg-container hide">
+        <p id="msg">Winner</p>
+        <button id="new-btn">New Game</button>
+    </div>
+    <main>
+        <h1>Tic Tac Toe</h1>
+        <div class="container">
+            <div class="game">
+                <button class="box"></button><button class="box"></button><button class="box"></button>
+                <button class="box"></button><button class="box"></button><button class="box"></button>
+                <button class="box"></button><button class="box"></button><button class="box"></button>
+            </div>
+        </div>
+        <button id="reset">Reset Game</button>
+    </main>
+    <script>
+        let boxes = [...document.querySelectorAll('.box')];
+        let resetBtn = document.querySelector('#reset');
+        let turnO = true;  // true: O's turn, false: X's turn (game state)
+        let newGameBtn = document.querySelector('#new-btn');
+        let msgContainer = document.querySelector('.msg-container');
+        let msg = document.querySelector('#msg');
+
+        const winPatterns = [  // All winning combinations (game state checks)
+            [0,1,2], [0,3,6], [0,4,8], [1,4,7], [2,5,8], [2,4,6], [3,4,5], [6,7,8]
+        ];
+
+        boxes.forEach((box, index) => {  // Track user clicks
+            box.addEventListener('click', () => {
+                if (turnO) {
+                    box.innerText = 'O'; box.style.color = 'green'; turnO = false;
+                } else {
+                    box.innerText = 'X'; box.style.color = 'black'; turnO = true;
+                }
+                box.disabled = true;
+                checkWinner();
+            });
+        });
+
+        const enableBoxes = () => { for (let box of boxes) { box.disabled = false; box.innerText = ''; } };
+        const disableBoxes = () => { for (let box of boxes) { box.disabled = true; } };
+
+        const showWinner = (winner) => {
+            msg.innerText = `Winner: ${winner}`;
+            msgContainer.classList.remove('hide');
+            disableBoxes();
+        };
+
+        const checkWinner = () => {  // Check win/draw after click (state validation)
+            for (let pattern of winPatterns) {
+                let [a, b, c] = pattern.map(i => boxes[i].innerText);
+                if (a && a === b && b === c) { showWinner(a); return; }
+            }
+            if (boxes.every(box => box.innerText)) {
+                msg.innerText = 'Draw!';
+                msgContainer.classList.remove('hide');
+            }
+        };
+
+        const resetGame = () => {
+            turnO = true; enableBoxes(); msgContainer.classList.add('hide');
+        };
+
+        resetBtn.addEventListener('click', resetGame);
+        newGameBtn.addEventListener('click', resetGame);
+    </script>
+</body>
+</html>
